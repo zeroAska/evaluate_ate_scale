@@ -68,8 +68,8 @@ def align(model,data):
     W = numpy.zeros( (3,3) )
     for column in range(model.shape[1]):
         W += numpy.outer(model_zerocentered[:,column],data_zerocentered[:,column])
-    U,d,Vh = numpy.linalg.linalg.svd(W.transpose())
-    S = numpy.matrix(numpy.identity( 3 ))
+        U,d,Vh = numpy.linalg.linalg.svd(W.transpose())
+        S = numpy.matrix(numpy.identity( 3 ))
     if(numpy.linalg.det(U) * numpy.linalg.det(Vh)<0):
         S[2,2] = -1
     rot = U*S*Vh
@@ -77,15 +77,15 @@ def align(model,data):
     rotmodel = rot*model_zerocentered
     dots = 0.0
     norms = 0.0
-
+    import pdb
     for column in range(data_zerocentered.shape[1]):
-	dots += numpy.dot(data_zerocentered[:,column].transpose(),rotmodel[:,column])
+        dots += numpy.dot(data_zerocentered[:,column].transpose(),rotmodel[:,column])
         normi = numpy.linalg.norm(model_zerocentered[:,column])
         norms += normi*normi
 
     s = float(dots/norms)    
 
-    print "scale: %f " % s  
+    print( "scale: %f " % s  )
     
     trans = data.mean(1) - s*rot * model.mean(1)
     
@@ -93,7 +93,7 @@ def align(model,data):
     alignment_error = model_aligned - data
     
     trans_error = numpy.sqrt(numpy.sum(numpy.multiply(alignment_error,alignment_error),0)).A[0]
-        
+    
     return rot,trans,trans_error, s
 
 def plot_traj(ax,stamps,traj,style,color,label):
@@ -123,10 +123,10 @@ def plot_traj(ax,stamps,traj,style,color,label):
             label=""
             x=[]
             y=[]
-        last= stamps[i]
+            last= stamps[i]
     if len(x)>0:
         ax.plot(x,y,style,color=color,label=label)
-            
+        
 
 if __name__=="__main__":
     # parse command line
@@ -158,26 +158,26 @@ if __name__=="__main__":
     
     second_xyz_aligned = scale * rot * second_xyz + trans
     
-    first_stamps = first_list.keys()
+    first_stamps = list(first_list.keys())
     first_stamps.sort()
     first_xyz_full = numpy.matrix([[float(value) for value in first_list[b][0:3]] for b in first_stamps]).transpose()
     
-    second_stamps = second_list.keys()
+    second_stamps = list(second_list.keys())
     second_stamps.sort()
     second_xyz_full = numpy.matrix([[float(value)*float(args.scale) for value in second_list[b][0:3]] for b in second_stamps]).transpose()
     second_xyz_full_aligned = scale * rot * second_xyz_full + trans
     
     if args.verbose:
-        print "compared_pose_pairs %d pairs"%(len(trans_error))
+        print ("compared_pose_pairs %d pairs"%(len(trans_error)))
 
-        print "absolute_translational_error.rmse %f m"%numpy.sqrt(numpy.dot(trans_error,trans_error) / len(trans_error))
-        print "absolute_translational_error.mean %f m"%numpy.mean(trans_error)
-        print "absolute_translational_error.median %f m"%numpy.median(trans_error)
-        print "absolute_translational_error.std %f m"%numpy.std(trans_error)
-        print "absolute_translational_error.min %f m"%numpy.min(trans_error)
-        print "absolute_translational_error.max %f m"%numpy.max(trans_error)
+        print( "absolute_translational_error.rmse %f m"%numpy.sqrt(numpy.dot(trans_error,trans_error) / len(trans_error)))
+        print( "absolute_translational_error.mean %f m"%numpy.mean(trans_error))
+        print( "absolute_translational_error.median %f m"%numpy.median(trans_error))
+        print( "absolute_translational_error.std %f m"%numpy.std(trans_error))
+        print( "absolute_translational_error.min %f m"%numpy.min(trans_error))
+        print ("absolute_translational_error.max %f m"%numpy.max(trans_error))
     else:
-        print "%f"%numpy.sqrt(numpy.dot(trans_error,trans_error) / len(trans_error))
+        print( "%f"%numpy.sqrt(numpy.dot(trans_error,trans_error) / len(trans_error)))
         
     if args.save_associations:
         file = open(args.save_associations,"w")
@@ -206,7 +206,7 @@ if __name__=="__main__":
             label=""
             
         ax.legend()
-            
+        
         ax.set_xlabel('x [m]')
         ax.set_ylabel('y [m]')
         plt.savefig(args.plot,dpi=90)
